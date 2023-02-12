@@ -4,8 +4,8 @@ import random
 
 
 class IdCounter:
-
-    def __init__(self):
+    """Класс для счетчика id."""
+    def __init__(self) -> None:
         self._id = 0
 
     def get_id(self) -> int:
@@ -14,32 +14,34 @@ class IdCounter:
 
 
 class Password:
+    """Класс для обработки пароля."""
 
-    def __init__(self):
-        self._password = None
-        self._init_password()
-
-    def _init_password(self) -> None:
+    def get(self):
+        """
+        Получает и проверяет введенный пароль.
+        :return: хэш-значение пароля
+        """
         password = input("Введите пароль: ")
         if len(password) < 8:
             raise ValueError("Пароль должен быть не менее 8 символов")
         if not password.isalnum():
             raise ValueError("Пароль должен быть буквенно-цифровой строкой")
-        self._password = password
-
-    def get(self):
-        return hashlib.sha256(self._password.encode()).hexdigest()
+        return hashlib.sha256(password.encode()).hexdigest()
 
     def check(self) -> bool:
+        """
+        Проверяет соответствие введенного пароля имеющемуся хэш-значению.
+        :return: True или False
+        """
         password = input()
         return hashlib.sha256(password.encode()).hexdigest() == self.get()
 
 
 class Product:
+    """Класс, описывающий товар."""
+    _id_pr_count = IdCounter()  # счетчик id товаров
 
-    _id_pr_count = IdCounter()
-
-    def __init__(self, name: str, price: Union[int, float], rating: Union[int, float]):
+    def __init__(self, name: str, price: Union[int, float], rating: Union[int, float]) -> None:
         self._id = self._id_pr_count.get_id()
         self._name = None
         self.price = price
@@ -69,7 +71,7 @@ class Product:
             raise TypeError("Цена должна быть типа int или float")
         if not new_price > 0:
             raise ValueError("Цена должна быть больше 0")
-        self._price = round(float(new_price), 2)
+        self._price = float(new_price)
 
     @property
     def rating(self) -> float:
@@ -81,7 +83,7 @@ class Product:
             raise TypeError("Рейтинг должен быть типа int или float")
         if new_rating < 0:
             raise ValueError("Рейтинг не может быть меньше 0")
-        self._rating = round(float(new_rating), 2)
+        self._rating = float(new_rating)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.name}, {self.price}, {self.rating})"
@@ -91,8 +93,8 @@ class Product:
 
 
 class Cart:
-
-    def __init__(self):
+    """Класс, описывающий корзину покупателя."""
+    def __init__(self) -> None:
         self._products_list = []
 
     @property
@@ -111,10 +113,10 @@ class Cart:
 
 
 class User:
+    """Класс, описывающий пользователя."""
+    _id_us_count = IdCounter()  # счетчик id пользователей
 
-    _id_us_count = IdCounter()
-
-    def __init__(self):
+    def __init__(self) -> None:
         self._id = self._id_us_count.get_id()
         self._cart = Cart()
         self._username = None
@@ -147,28 +149,28 @@ class User:
 
 
 class ProductFactory:
-
-    def create_product(self):
+    """Класс, описывающий фабрику для создания товаров."""
+    def create_product(self) -> Product:
         name = random.choice(('Аспирин', 'Парацетамол', 'Ибупрофен', 'Нимесулид', 'Диклофенак', 'Кетопрофен', 'Мелоксикам',
                               'Амиксин', 'Ингавирин', 'Гриппферон', 'Трикрезан', 'Эргоферон', 'Кагоцел', 'Циклоферон'))
-        price = random.uniform(0.0, 100.0)
-        rating = random.uniform(0.0, 5.0)
+        price = round(random.uniform(0.0, 100.0), 2)
+        rating = round(random.uniform(0.0, 5.0), 2)
         return Product(name, price, rating)
 
 
 class Store:
-
-    def __init__(self):
+    """Класс, описывающий магазин."""
+    def __init__(self) -> None:
         self._pf = ProductFactory()
         self._product_list = [self._pf.create_product() for _ in range(10)]
         self._user = User()
         self._ch_prod = None
 
     @property
-    def product_list(self):
+    def product_list(self) -> list:
         return self._product_list
 
-    def take_product(self):
+    def take_product(self) -> None:
         product = input("Введите желаемый продукт: ")
         for index, value in enumerate(self._product_list):
             if value.name == product:
@@ -177,7 +179,7 @@ class Store:
                 break
         self._ch_prod = None
 
-    def return_product(self):
+    def return_product(self) -> None:
         product = input("Введите возвращаемый продукт: ")
         for index, value in enumerate(self._user._cart.products_list):
             if value.name == product:
@@ -186,7 +188,7 @@ class Store:
                 break
         self._ch_prod = None
 
-    def user_cart(self):
+    def user_cart(self) -> list:
         return self._user.cart
 
 
